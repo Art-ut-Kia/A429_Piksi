@@ -1,6 +1,7 @@
 /**
  * galileo.ino: Bridges a Swift Navigation piksi-multi GNSS module to a Naveol Nav429 ARINC shield
  * author: JP Pétillon
+ * status: under construction
  */
 
 //..............................................................................
