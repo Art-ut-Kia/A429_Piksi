@@ -1,8 +1,6 @@
-// !!!!!!!!!!!!!!!! this is a copy !!!!!!!!!!!!!!!!!
-// original is in VelocityOffsetComputer directory
-//
-// HI-3593.h: interfaces a HOLT-IC dual RX, single TX ARINC 429 chip
-//
+/**
+ * HI-3593.h: interfaces a HOLT-IC dual RX, single TX ARINC 429 chip
+ */
  
 #ifndef HI3593_H
 #define HI3593_H
