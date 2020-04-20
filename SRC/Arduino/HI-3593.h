@@ -1,5 +1,6 @@
 /**
- * HI-3593.h: interfaces a HOLT-IC dual RX, single TX ARINC 429 chip
+ * HI-3593.h: interfaces for NAV429 support SW
+ * (based on HOLT-IC dual RX, single TX ARINC 429 chip)
  */
  
 #ifndef HI3593_H
