@@ -1,7 +1,7 @@
-//
-// HI-3593.cpp: library for HI-3593 shield
-// (HOLT-IC dual receiver - single transmitter ARINC 429 chip)
-//
+/**
+ * HI-3593.cpp: library for NAV429 shield
+ * (HOLT-IC dual receiver - single transmitter ARINC 429 chip)
+ */
 
 #include "HI-3593.h"
 
