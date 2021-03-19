@@ -1,7 +1,8 @@
-/**
- * HI-3593.h: interfaces for NAV429 support SW
- * (based on HOLT-IC dual RX, single TX ARINC 429 chip)
- */
+//
+// HI-3593.h: interfaces a HOLT-IC dual RX, single TX ARINC 429 chip
+//
+// VERSION: V2.0 (added "float on ARINC" coding/decoding functions)
+//
  
 #ifndef HI3593_H
 #define HI3593_H
@@ -39,6 +40,13 @@ unsigned long BuildArincWord(
   const unsigned char label // the label to encode into the label field (bits flipped)
 );
 
+// Encodes a binary ARINC word from its separate constitutive fields (data transmitted is a 14-bit mantissa floating point)
+unsigned long BuildArincWordFloat(
+  const float &data,        // the data to encode in the ARINC word
+  const bool vld,           // the validity (encode NaN into the data if invalid)
+  const unsigned char label // the label to encode into the label field (bits flipped)
+);
+
 // Splits a binary ARINC word into Data, SSM and SDI
 void SplitArincWord(
   const unsigned long &aw,  // the ARINC word to decode
@@ -47,6 +55,13 @@ void SplitArincWord(
   float &data,              // pointer to float where to store the decoded data
   unsigned char &ssm,       // pointer to the byte where to store the decoded SSM
   unsigned char &sdi        // pointer to the byte where to store the decoded SDI
+);
+
+// Splits a binary ARINC word into float data and validity
+void SplitArincWordFloat(
+  const unsigned long &aw,  // the ARINC word to decode
+  float &data,              // pointer to float where to store the decoded data
+  bool &vld                 // pointer to the byte where to store the decoded validity
 );
 
 // Combines two BNR SSMs (if both are NO => NO, otherwise if at least one is FW => FW, otherwise => NCD)
