@@ -38,7 +38,7 @@ void setup() {
     Serial.println("|                      A429-PIKSI                      |");
     Serial.println("|  Bridges a Swift-nav PIKSI-MULTI to a Naveol NAV429  |");
     Serial.println("|  Author: jean-paul.petillon@orange.fr                |");
-    Serial.println("|  Version: V2.0 dated 2021/04/01                      |");        // V2.0
+    Serial.println("|  Version: V2.0 dated 2021/03/19                      |");        // V2.0
     Serial.println(" ------------------------------------------------------ ");
     #ifdef traceTimstamps
         Serial.println("NOT THE FLIGHT SW. PRINTS A SEQUENCE OF PIKSI TIMESTAMPS");
