@@ -1,7 +1,9 @@
-/**
- * HI-3593.cpp: library for NAV429 shield
- * (HOLT-IC dual receiver - single transmitter ARINC 429 chip)
- */
+//
+// HI-3593.cpp: library for HI-3593 shield
+// (HOLT-IC dual receiver - single transmitter ARINC 429 chip)
+//
+// VERSION: V2.0 (added "float on ARINC" coding/decoding)
+//
 
 #include "HI-3593.h"
 
@@ -116,11 +118,28 @@ unsigned long BuildArincWord(const float &r, const float &d, const unsigned char
   return w;
 }
 //------------------------------------------------------------------------------
+// execution time: ... µs (including ... µs for calling the function)
+unsigned long BuildArincWordFloat(const float &data, const bool vld, const unsigned char label) {
+  union {float x; unsigned int u;} un;
+  if (vld) {
+    un.x = 1.000030f * data; // scale factor to balance the truncation error
+    return ((un.u >> 1) & 0x7fffff00) | label;
+  } else return 0x3fe00000;  // NAN >> 1 (NAN = 0x7fc00000)
+}
+//------------------------------------------------------------------------------
 // execution time: 22µs (including 2µs for calling the function)
 void SplitArincWord(const unsigned long &aw, const bool noSdi, const float &range, float &data, unsigned char &ssm, unsigned char &sdi) {
   data = range/2.147483648e9 * ((signed long)(aw & (noSdi ? 0xffffff00 : 0xfffffc00)) << 3);
   ssm =            (((unsigned char*)&aw)[3] & 0x60) >> 5;
   sdi = noSdi ? 0 : ((unsigned char*)&aw)[1] & 0x03;
+}
+//------------------------------------------------------------------------------
+// execution time: ... µs (including ... µs for calling the function)
+void SplitArincWordFloat(const unsigned long &aw, float &data, bool &vld) {
+  union {float x; unsigned int u;} un;
+  un.u = (aw & 0x7fffff00)<<1;
+  vld = !isnan(data);
+  data = vld ? un.x : 0.0f;
 }
 //------------------------------------------------------------------------------
 unsigned char cbnSsm(const unsigned char Ssm1, const unsigned char Ssm2) {
