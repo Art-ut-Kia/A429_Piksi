@@ -10,7 +10,9 @@
  *       so that GPS weight is lowered. Furthermore, SBAS is disabled to remove a common mode failure 
  *       between constellations
  *
- * AUTHOR: JP Pétillon
+ * AUTHOR/YYYYMMDD: JP Pétillon 2021/03/19
+ * 
+ * VERSION: V2.0 (added velocity covariance matrix + GPS SV's count on ARINC frame: 7 labels)        // V2.0
  */
 
 //#define traceTimstamps   // uncomment to print a sequence of messages timestamps
@@ -36,7 +38,7 @@ void setup() {
     Serial.println("|                      A429-PIKSI                      |");
     Serial.println("|  Bridges a Swift-nav PIKSI-MULTI to a Naveol NAV429  |");
     Serial.println("|  Author: jean-paul.petillon@orange.fr                |");
-    Serial.println("|  Version: V1.0 dated 2020/04/01                      |");
+    Serial.println("|  Version: V2.0 dated 2021/04/01                      |");        // V2.0
     Serial.println(" ------------------------------------------------------ ");
     #ifdef traceTimstamps
         Serial.println("NOT THE FLIGHT SW. PRINTS A SEQUENCE OF PIKSI TIMESTAMPS");
@@ -94,7 +96,7 @@ struct __attribute__((packed)) {
 } llhPosCov;
 struct __attribute__((packed)) {
     uint32_t towMillis;
-    int32_t  vn, ve , vd;
+    int32_t  vn, ve, vd;
     float    covNN, covNE, covND, covEE, covED, covDD;
     uint8_t  svCount, statusFlags;
 } velNedCov;
@@ -179,9 +181,12 @@ inline void txArincFrame() {
     // overwrites GNSS data for testing purpose
     #define ft 0.3048
     #define knot (1852./3600.*1000.) // knot in mm/s
+    #define kt2 (knot*knot) // knot² in (mm/s)²                                                     // V2.0
     #define ftPerMin (0.3048/60*1000.) //ft/min in mm/s
     #ifdef sendTestPattern
         velNedCov.vn = 10*knot; velNedCov.ve = -7*knot; velNedCov.vd = 3*ftPerMin;
+        velNedCov.covNN =  4.0*kt2; velNedCov.covEE =  9.0*kt2; velNedCov.covDD =  16.0*kt2;        // V2.0
+        velNedCov.covNE = -4.0*kt2; velNedCov.covND = -9.0*kt2; velNedCov.covED = -16.0*kt2;        // V2.0
         llhPosCov.lat=0x4046000000000000; // 44.0°
         llhPosCov.lon=0x400CCCCCCCCCCCCD; //  3.6°
         llhPosCov.height=0x4056DC28F5C28F5C; // 300*ft
@@ -204,6 +209,15 @@ inline void txArincFrame() {
     WriteArincWord(BuildArincWord(hvelRange, velNedCov.vn, vld?3:1, SDI, flip[0104]));
     WriteArincWord(BuildArincWord(hvelRange, velNedCov.ve, vld?3:1, SDI, flip[0106]));
     WriteArincWord(BuildArincWord(vvelRange,-velNedCov.vd, vld?3:1, SDI, flip[0107])); // PIKSI outputs Vdown, ARINC Vup
+
+    // NED velocity noise covariance matrix                                       // V2.0
+    // transmitted as a truncated float as get from Piksi, i.e. in (m/s)^2        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covNN, vld, flip[0114]));        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covNE, vld, flip[0116]));        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covND, vld, flip[0117]));        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covEE, vld, flip[0124]));        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covED, vld, flip[0126]));        // V2.0
+    WriteArincWord(BuildArincWordFloat(velNedCov.covDD, vld, flip[0127]));        // V2.0
 
     // latitude, longitude, height
     #define heiRange (131072.*ft)
@@ -231,6 +245,8 @@ inline void txArincFrame() {
     // GNSS receiver status (SV count, status flags)
     // total of 18 bits:                                      8                          5                                    5
     WriteArincWord(BuildArincWord(131072., (int32_t)velNedCov.svCount << 10 | (velNedCov.statusFlags & 0x1f) << 5 | llhPosCov.statusFlags & 0x1f, vld?0:1, SDI, flip[0273]));
+    // GPS SV count                                                                                                                                                                  // V2.0
+    WriteArincWord(BuildArincWord(131072., (int32_t)velNedCov.svCount << 10,                                                                      vld?0:1, SDI, flip[0274]));        // V2.0
   
     // System monitor
     if (devMonRefreshed) {
