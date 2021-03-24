@@ -120,11 +120,11 @@ unsigned long BuildArincWord(const float &r, const float &d, const unsigned char
 //------------------------------------------------------------------------------
 // execution time: ... µs (including ... µs for calling the function)
 unsigned long BuildArincWordFloat(const float &data, const bool vld, const unsigned char label) {
-  union {float x; unsigned int u;} un;
+  union {float x; unsigned long u;} un; // "unsigned int" => "unsigned long" // V2.01
   if (vld) {
     un.x = 1.000030f * data; // scale factor to balance the truncation error
     return ((un.u >> 1) & 0x7fffff00) | label;
-  } else return 0x3fe00000;  // NAN >> 1 (NAN = 0x7fc00000)
+  } else return 0x3fe00000 | label;  // NAN >> 1 (NAN = 0x7fc00000) // V2.01: encoded label
 }
 //------------------------------------------------------------------------------
 // execution time: 22µs (including 2µs for calling the function)
@@ -136,9 +136,9 @@ void SplitArincWord(const unsigned long &aw, const bool noSdi, const float &rang
 //------------------------------------------------------------------------------
 // execution time: ... µs (including ... µs for calling the function)
 void SplitArincWordFloat(const unsigned long &aw, float &data, bool &vld) {
-  union {float x; unsigned int u;} un;
+  union {float x; unsigned long u;} un; // "unsigned int" => "unsigned long" // V2.01
   un.u = (aw & 0x7fffff00)<<1;
-  vld = !isnan(data);
+  vld = !isnan(un.x);  // replaced data by un.x // V2.01 
   data = vld ? un.x : 0.0f;
 }
 //------------------------------------------------------------------------------
