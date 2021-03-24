@@ -10,9 +10,10 @@
  *       so that GPS weight is lowered. Furthermore, SBAS is disabled to remove a common mode failure 
  *       between constellations
  *
- * AUTHOR/YYYYMMDD: JP Pétillon 2021/03/19
+ * AUTHOR/YYYYMMDD: JP Pétillon 2021/03/24
  * 
- * VERSION: V2.0 (added velocity covariance matrix + GPS SV's count on ARINC frame: 7 labels)        // V2.0
+ * VERSION: V2.00 (added velocity covariance matrix + GPS SV's count on ARINC frame: 7 labels)        // V2.0
+ * VERSION: V2.01 (fixed bugs in ARINC float code/decode)                                             // V2.01
  */
 
 //#define traceTimstamps   // uncomment to print a sequence of messages timestamps
@@ -38,7 +39,7 @@ void setup() {
     Serial.println("|                      A429-PIKSI                      |");
     Serial.println("|  Bridges a Swift-nav PIKSI-MULTI to a Naveol NAV429  |");
     Serial.println("|  Author: jean-paul.petillon@orange.fr                |");
-    Serial.println("|  Version: V2.0 dated 2021/03/19                      |");        // V2.0
+    Serial.println("|  Version: V2.01 dated 2021/03/24                     |");        // V2.01
     Serial.println(" ------------------------------------------------------ ");
     #ifdef traceTimstamps
         Serial.println("NOT THE FLIGHT SW. PRINTS A SEQUENCE OF PIKSI TIMESTAMPS");
